@@ -1,0 +1,74 @@
+
+with open("regions.fna", "r") as file1:
+    def make_dict(fasta):
+        DNA_dict={}
+        lista = []
+        idheader = None
+        for lines in fasta: 
+            if lines.startswith('>'):
+                if idheader:
+                    DNA_dict[idheader]=''.join(lista)
+                    #print(lista)
+                    del lista[:]
+    
+                idheader = lines.strip().split()[0]  #saves the id. cut the lines based on where id starts, the the first
+                #print(idheader)
+            else:
+                lista.append(lines.strip())   ##saves the sequences (multiline)
+                
+                #print(lista)
+        DNA_dict[idheader]=''.join(lista)       #you need to add this once more as the last id+seq ends with a seq instead of the next id
+        del lista[:]    
+        return DNA_dict
+        #print(DNA_dict)
+    
+    Fasta_dict= make_dict(file1)
+    Available_restr_enzymes={"HhaI": "GCGC", "HindIII": "AAGCTT", "NotI": "GCGGCCGC", "BbvCI": "CCTCAGC"}  #should be able to store the info about on which NT to slice
+    print(Available_restr_enzymes.keys())
+    Restr_enz=input("Select the restriction enzyme from the list provided: ")
+    print(Restr_enz)
+    The_site_of_cut={"HhaI": 3, "HindIII": 1, "NotI": 2, "BbvCI": 2}
+    
+    Dict_fragments={}
+    Fragments_list=[]   #used for storing the fragments
+    
+    if Restr_enz in Available_restr_enzymes.keys():        #if the given input name found in the dict keys
+        Recogn_site=Available_restr_enzymes.get(Restr_enz)    #get the value from the dictionary of enzymes, save it as the recognition site
+        #print(Recogn_site)
+        n=The_site_of_cut.get(Restr_enz)
+        
+        for key,value in Fasta_dict.items():        #iterate over the fasta dict
+            ID=key
+            #print(ID)
+            if Recogn_site in value:
+                #print("True")
+                #print(value.index(Recogn_site))
+
+                for index in range(0, len(value), n):
+                    #print(value.index(Recogn_site))
+                    Fragments_list.split(value[index : index + n])
+                    print(Fragments_list)
+
+                    Fragments='\t'.join(str(subfrag) for subfrag in Fragments_list).upper()
+                    #print(Fragments)
+                    Dict_fragments[ID]=Fragments
+                    Fragments=''
+                    Fragments_list=[]
+    else:
+        print("Error: The enzyme you entered not available")
+            #print(Fragments)
+            #Fragment_list.append(value)
+        #empy the string for the second ID-seq pair
+
+        #print(Fasta_dict)
+with open("outputProject.txt","w") as out:
+    
+    for key,value in Dict_fragments.items():
+        out.write(key + '\n')
+        out.write(value + '\n')
+
+    #Fragments=Fasta_fragments(Fasta_dict, Restr_enz)
+
+#%%
+    #need to iterate over the sequence, if the recognition sequence found, split it based on the specificity of the enzyme
+    #maybe try indicating these sites somehow? Making these recog.sites as bold in the final product for instance
