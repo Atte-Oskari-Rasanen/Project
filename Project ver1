@@ -1,0 +1,57 @@
+
+with open("regions.fna", "r") as file1:
+    def make_dict(fasta):
+        DNA_dict={}
+        lista = []
+        idheader = None
+        for lines in fasta: 
+            if lines.startswith('>'):
+                if idheader:
+                    DNA_dict[idheader]=''.join(lista)
+                    #print(lista)
+                    del lista[:]
+    
+                idheader = lines.strip().split()[0]  #saves the id. cut the lines based on where id starts, the the first
+                #print(idheader)
+            else:
+                lista.append(lines.strip())   ##saves the sequences (multiline)
+                #print(lista)
+        DNA_dict[idheader]=''.join(lista)       #you need to add this once more as the last id+seq ends with a seq instead of the next id
+        del lista[:]    
+        return DNA_dict
+        #print(DNA_dict)
+    
+    Fasta_dict= make_dict(file1)
+    
+    Restr_enz=input("Give the sequence that the restriction enzyme targets: ")
+
+    NTs_list=['A','G','C','T']
+    #Fragment_list=[]
+    Dict_fragments={}
+    for key,value in Fasta_dict.items():
+        ID=key
+        #print(ID)
+        if Restr_enz in value:
+            Fragments_list=value.split(Restr_enz)
+            #for NT in Fragments_list:        #go over the list items (items separated by comma so contain many NTs)
+                #for letter in NT:    #go over the item NT by NT
+                    #print(letter)
+                   # if letter not in NTs_list:   #if the NT a NT, i.e. part of the list, remove
+                        #print(letter)
+            #print(Fragments_list)
+            Fragments='\t'.join(str(subfrag) for subfrag in Fragments_list).upper()
+            #print(Fragments)
+
+            #print(Fragments)
+            #Fragment_list.append(value)
+            Dict_fragments[ID]=Fragments
+            Fragments=''        #empy the string for the second ID-seq pair
+
+        #print(Fasta_dict)
+with open("outputProject.txt","w") as out:
+    
+    for key,value in Dict_fragments.items():
+        out.write(key + '\n')
+        out.write(value + '\n')
+    
+    #Fragments=Fasta_fragments(Fasta_dict, Restr_enz)
